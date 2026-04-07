@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JS Quiz | var vs let — Mission Briefing</title>
+<link rel="icon" type="image/svg+xml" href="assets/images/urans.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Roboto+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+/* ─── Reset & Base ─── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:        #0b0e14;
+  --bg2:       #0f1319;
+  --cyan:      #00d1ff;
+  --purple:    #7b61ff;
+  --green:     #00ffaa;
+  --red:       #ff4d6d;
+  --text:      #f8faf8;
+  --muted:     rgba(248,250,248,0.55);
+  --glass-bg:  rgba(255,255,255,0.03);
+  --glass-bd:  rgba(255,255,255,0.08);
+  --card-glow-c: rgba(0,209,255,0.15);
+  --card-glow-p: rgba(123,97,255,0.15);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Roboto Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+  cursor: url('cursors/Gemini_shipFlying.png'), auto;
+}
+
+a, button:hover {
+    cursor: url('cursors/Gemini_shipAction.png'), pointer;
+}
+
+/* ─── Stars Background ─── */
+.space-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+
+.stars {
+  position: absolute; background: transparent; border-radius: 50%;
+}
+.s1 { width:1px; height:1px;
+  box-shadow: 120px 200px #fff, 400px 80px #fff, 800px 350px rgba(255,255,255,0.7),
+    1200px 600px #fff, 300px 700px #fff, 600px 150px rgba(255,255,255,0.5),
+    900px 450px #fff, 150px 900px rgba(255,255,255,0.6), 1400px 250px #fff,
+    700px 550px rgba(255,255,255,0.8), 1100px 800px #fff, 50px 400px rgba(255,255,255,0.4);
+  animation: twinkle 6s infinite alternate;
+}
+.s2 { width:2px; height:2px;
+  box-shadow: 250px 120px #00d1ff, 850px 300px rgba(255,255,255,0.9),
+    1300px 500px #7b61ff, 450px 750px #fff, 1050px 150px rgba(0,209,255,0.6),
+    650px 650px #fff, 200px 500px rgba(123,97,255,0.5);
+  animation: twinkle 4s infinite 1s alternate;
+}
+.s3 { width:3px; height:3px;
+  box-shadow: 600px 200px rgba(255,255,255,0.9), 1200px 400px rgba(0,209,255,0.8),
+    350px 600px rgba(123,97,255,0.9), 950px 700px rgba(255,255,255,0.6);
+  animation: twinkle 8s infinite 2s alternate;
+}
+.nebula-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 80% 15%, rgba(123,97,255,0.12) 0%, transparent 45%),
+    radial-gradient(circle at 10% 85%, rgba(0,209,255,0.08) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(123,97,255,0.05) 0%, transparent 60%);
+  filter: blur(40px);
+}
+
+@keyframes twinkle { from { opacity:.2; } to { opacity: .9; } }
+
+/* ─── Page Layout ─── */
+.page-wrap {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 16px 60px;
+}
+
+/* ─── Header ─── */
+.quiz-header {
+  width: 100%; max-width: 860px;
+  padding: 28px 0 0;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+.logo-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text);
+}
+.logo-text span { color: var(--cyan); }
+
+.mission-badge {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--cyan);
+  border: 1px solid rgba(0,209,255,0.3);
+  padding: 6px 14px; border-radius: 20px;
+  background: rgba(0,209,255,0.05);
+}
+
+/* ─── Intro Screen ─── */
+.intro-screen {
+  width: 100%; max-width: 680px;
+  text-align: center;
+  padding: 20px 0;
+  animation: fadeUp .6s ease both;
+}
+
+.mission-icon {
+  font-size: 56px; margin-bottom: 24px;
+  filter: drop-shadow(0 0 20px var(--cyan));
+  display: block;
+}
+
+.intro-screen h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(22px, 4vw, 36px);
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.intro-screen h1 span { color: var(--cyan); }
+
+.intro-screen .subtitle {
+  font-size: 13px; color: var(--muted); letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 32px;
+}
+
+.intro-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-bd);
+  border-radius: 12px;
+  padding: 32px;
+  backdrop-filter: blur(8px);
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.stat-row {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  margin-bottom: 28px;
+}
+.stat-item {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px; padding: 16px 12px; text-align: center;
+}
+.stat-num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 28px; font-weight: 700;
+  color: var(--cyan);
+  text-shadow: 0 0 12px var(--cyan);
+  display: block;
+}
+.stat-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+.topics-list {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.topic-tag {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px; letter-spacing: 1px;
+  padding: 5px 12px; border-radius: 20px;
+  border: 1px solid;
+}
+.tag-hoist  { color: #c084fc; border-color: rgba(192,132,252,0.3); background: rgba(192,132,252,0.07); }
+.tag-tdz    { color: #fb923c; border-color: rgba(251,146,60,0.3);  background: rgba(251,146,60,0.07); }
+.tag-scope  { color: #00d1ff; border-color: rgba(0,209,255,0.3);   background: rgba(0,209,255,0.07); }
+.tag-closure{ color: #4ade80; border-color: rgba(74,222,128,0.3);  background: rgba(74,222,128,0.07); }
+.tag-async  { color: #f472b6; border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.07); }
+
+.launch-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+  padding: 18px 48px;
+  background: transparent;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .4s ease;
+  position: relative; overflow: hidden;
+}
+.launch-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--cyan); transform: scaleX(0); transform-origin: left;
+  transition: transform .4s ease; z-index: -1;
+}
+.launch-btn:hover { color: var(--bg); box-shadow: 0 0 25px var(--cyan); }
+.launch-btn:hover::before { transform: scaleX(1); }
+
+/* ─── Quiz Screen ─── */
+.quiz-screen { width: 100%; max-width: 760px; display: none; }
+
+/* Progress */
+.progress-wrap { margin-bottom: 28px; }
+.progress-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.progress-meta span {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+}
+.progress-meta .q-counter { color: var(--cyan); }
+.progress-track {
+  height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; position: relative;
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--purple), var(--cyan));
+  border-radius: 2px; transition: width .5s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+/* Category pill */
+.cat-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+}
+.cat-pill {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 20px; border: 1px solid;
+}
+
+/* Question Card */
+.q-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-bd);
+  border-radius: 14px;
+  padding: 36px;
+  backdrop-filter: blur(8px);
+  margin-bottom: 20px;
+  animation: fadeUp .4s ease both;
+  position: relative; overflow: hidden;
+}
+.q-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--purple), var(--cyan), transparent);
+}
+
+.q-num-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px; letter-spacing: 3px; color: var(--muted);
+  text-transform: uppercase; margin-bottom: 12px;
+}
+
+.q-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(14px, 2.5vw, 18px);
+  font-weight: 500; letter-spacing: 1px;
+  margin-bottom: 24px; line-height: 1.5;
+}
+
+/* Code Block */
+.code-block {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-left: 3px solid var(--purple);
+  border-radius: 8px;
+  padding: 20px 24px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--text);
+  margin-bottom: 28px;
+  white-space: pre;
+  overflow-x: auto;
+  position: relative;
+}
+.code-block .kw  { color: #c084fc; }
+.code-block .fn  { color: var(--cyan); }
+.code-block .str { color: #4ade80; }
+.code-block .num { color: #fb923c; }
+.code-block .cm  { color: rgba(255,255,255,0.3); }
+.code-lang {
+  position: absolute; top: 8px; right: 12px;
+  font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
+}
+
+/* Options */
+.options { display: flex; flex-direction: column; gap: 10px; }
+
+.opt-btn {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 14px 20px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: all .25s ease;
+  display: flex; align-items: center; gap: 14px;
+  position: relative; overflow: hidden;
+}
+.opt-index {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px; font-weight: 700;
+  width: 24px; height: 24px;
+  border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all .25s;
+}
+.opt-btn:hover:not(:disabled) {
+  background: rgba(0,209,255,0.06);
+  border-color: rgba(0,209,255,0.35);
+  transform: translateX(4px);
+}
+.opt-btn:hover:not(:disabled) .opt-index {
+  border-color: var(--cyan); color: var(--cyan);
+}
+
+.opt-btn.correct {
+  background: rgba(0,255,170,0.08);
+  border-color: rgba(0,255,170,0.5);
+  color: #00ffaa;
+  animation: pulseGreen .4s ease;
+}
+.opt-btn.correct .opt-index { background: #00ffaa; color: var(--bg); border-color: #00ffaa; }
+
+.opt-btn.wrong {
+  background: rgba(255,77,109,0.08);
+  border-color: rgba(255,77,109,0.5);
+  color: #ff4d6d;
+}
+.opt-btn.wrong .opt-index { background: #ff4d6d; color: var(--bg); border-color: #ff4d6d; }
+
+.opt-btn.reveal {
+  background: rgba(0,255,170,0.06);
+  border-color: rgba(0,255,170,0.4);
+  color: #00ffaa;
+}
+.opt-btn.reveal .opt-index { border-color: #00ffaa; color: #00ffaa; }
+
+.opt-btn:disabled { cursor: default; transform: none; }
+
+@keyframes pulseGreen {
+  0%   { box-shadow: 0 0 0 0 rgba(0,255,170,.5); }
+  70%  { box-shadow: 0 0 0 10px rgba(0,255,170,0); }
+  100% { box-shadow: 0 0 0 0 rgba(0,255,170,0); }
+}
+
+/* Explanation */
+.explanation {
+  background: rgba(123,97,255,0.07);
+  border: 1px solid rgba(123,97,255,0.2);
+  border-left: 3px solid var(--purple);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-top: 16px;
+  font-size: 13px;
+  line-height: 1.85;
+  color: rgba(248,250,248,0.85);
+  display: none;
+  animation: fadeUp .3s ease;
+}
+.explanation .exp-head {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px; letter-spacing: 2px; color: var(--purple);
+  text-transform: uppercase; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.explanation strong { color: var(--text); font-weight: 500; }
+.explanation code {
+  background: rgba(0,0,0,0.4); padding: 2px 6px; border-radius: 4px;
+  color: var(--cyan); font-size: 12px;
+}
+
+/* Bottom nav */
+.q-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 20px;
+}
+.score-live {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px; letter-spacing: 2px; color: var(--muted);
+}
+.score-live span { color: var(--cyan); }
+
+.next-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  padding: 12px 28px;
+  background: transparent; border: 1px solid var(--cyan);
+  color: var(--cyan); border-radius: 6px; cursor: pointer;
+  transition: all .3s ease; opacity: 0; pointer-events: none;
+}
+.next-btn.visible { opacity: 1; pointer-events: all; }
+.next-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 15px var(--cyan); }
+
+/* ─── Results Screen ─── */
+.results-screen {
+  width: 100%; max-width: 680px;
+  display: none; text-align: center;
+  animation: fadeUp .6s ease both;
+}
+
+.results-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(18px, 3vw, 28px);
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.results-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 36px; }
+
+.score-ring-wrap { position: relative; width: 180px; height: 180px; margin: 0 auto 36px; }
+.score-ring-svg { transform: rotate(-90deg); }
+.ring-track { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 8; }
+.ring-fill  { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1); }
+.score-ring-text {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-big {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 40px; font-weight: 900; line-height: 1;
+}
+.score-denom { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+.results-msg {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 32px;
+  padding: 12px 24px; border-radius: 6px; display: inline-block;
+}
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 32px;
+}
+.stat-box {
+  background: var(--glass-bg); border: 1px solid var(--glass-bd);
+  border-radius: 10px; padding: 20px 12px;
+}
+.stat-box .val {
+  font-family: 'Orbitron', sans-serif; font-size: 26px; font-weight: 700;
+  display: block; margin-bottom: 4px;
+}
+.stat-box .lbl { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+.q-dots {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 32px;
+}
+.q-dot {
+  width: 32px; height: 32px; border-radius: 50%;
+  font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid;
+}
+.q-dot.c { background: rgba(0,255,170,.1); border-color: rgba(0,255,170,.5); color: #00ffaa; }
+.q-dot.w { background: rgba(255,77,109,.1); border-color: rgba(255,77,109,.5); color: #ff4d6d; }
+
+.results-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+.btn-restart, .btn-home {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  padding: 14px 32px; border-radius: 6px; cursor: pointer; transition: all .3s ease;
+}
+.btn-restart {
+  background: transparent; border: 1px solid var(--cyan); color: var(--cyan);
+}
+.btn-restart:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 20px var(--cyan); }
+.btn-home {
+  background: transparent; border: 1px solid rgba(255,255,255,0.15); color: var(--muted);
+  text-decoration: none; display: inline-flex; align-items: center;
+}
+.btn-home:hover { border-color: var(--purple); color: var(--text); }
+
+/* Explanation sub-sections */
+.exp-section { margin-bottom: 16px; }
+.exp-section:last-child { margin-bottom: 0; }
+
+.exp-concept-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--cyan); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.exp-section p {
+  font-size: 13px; line-height: 1.85; color: rgba(248,250,248,0.82);
+  margin-bottom: 8px;
+}
+.exp-section p:last-child { margin-bottom: 0; }
+
+.exp-code {
+  background: rgba(0,0,0,0.5);
+  border-left: 2px solid rgba(123,97,255,0.4);
+  border-radius: 0 6px 6px 0;
+  padding: 12px 16px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px; line-height: 1.9;
+  color: rgba(248,250,248,0.75);
+  margin: 10px 0; white-space: pre;
+  overflow-x: auto;
+}
+
+.wrong-item {
+  font-size: 12px; line-height: 1.7;
+  color: rgba(248,250,248,0.65);
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 6px;
+}
+.wrong-item:last-child { margin-bottom: 0; }
+
+.wrong-badge {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px; letter-spacing: 1px;
+  color: #ff4d6d;
+  background: rgba(255,77,109,0.1);
+  border: 1px solid rgba(255,77,109,0.25);
+  border-radius: 4px;
+  padding: 2px 8px; margin-right: 8px;
+  display: inline-block;
+}
+
+.ans-correct {
+  color: var(--green);
+  text-shadow: 0 0 8px rgba(0,255,170,0.4);
+}
+
+/* ─── Animations ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 600px) {
+  .q-card { padding: 24px 20px; }
+  .stat-row, .stats-grid { grid-template-columns: repeat(3,1fr); }
+  .code-block { font-size: 12px; padding: 16px; }
+  .intro-card { padding: 24px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Stars Background -->
+<div class="space-bg">
+  <div class="stars s1"></div>
+  <div class="stars s2"></div>
+  <div class="stars s3"></div>
+  <div class="nebula-bg"></div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- Header -->
+  <header class="quiz-header">
+    <div class="logo-text"><span>HANAN.</span>COSMOS</div>
+    <div class="mission-badge">Mission: JS Mastery</div>
+  </header>
+
+  <!-- ═══ INTRO SCREEN ═══ -->
+  <div class="intro-screen" id="introScreen">
+    <span class="mission-icon">🛸</span>
+    <h1><span>var</span> vs <span>let</span></h1>
+    <p class="subtitle">Interview Mission Briefing — Level: Advanced</p>
+
+    <div class="intro-card">
+      <div class="stat-row">
+        <div class="stat-item">
+          <span class="stat-num">15</span>
+          <span class="stat-label">Questions</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" style="color:var(--purple);text-shadow:0 0 12px var(--purple)">5</span>
+          <span class="stat-label">Topics</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" style="color:var(--green);text-shadow:0 0 12px var(--green)">∞</span>
+          <span class="stat-label">Retries</span>
+        </div>
+      </div>
+      <div class="topics-list">
+        <span class="topic-tag tag-hoist">Hoisting</span>
+        <span class="topic-tag tag-tdz">Temporal Dead Zone</span>
+        <span class="topic-tag tag-scope">Scope</span>
+        <span class="topic-tag tag-closure">Closures</span>
+        <span class="topic-tag tag-async">Async Traps</span>
+      </div>
+    </div>
+
+    <button class="launch-btn" onclick="startQuiz()">
+      <i class="fa-solid fa-rocket" style="margin-right:10px"></i> Launch Mission
+    </button>
+  </div>
+
+  <!-- ═══ QUIZ SCREEN ═══ -->
+  <div class="quiz-screen" id="quizScreen">
+
+    <!-- Progress -->
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span class="q-counter" id="qCounter">01 / 15</span>
+        <span id="scoreLabel">Score: 0</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Category -->
+    <div class="cat-row">
+      <span class="cat-pill" id="catPill">Hoisting</span>
+    </div>
+
+    <!-- Question Card -->
+    <div class="q-card" id="qCard">
+      <div class="q-num-label" id="qNumLabel">Mission 01 of 15</div>
+      <div class="q-title" id="qTitle"></div>
+      <div class="code-block" id="codeBlock"><span class="code-lang">JavaScript</span></div>
+      <div class="options" id="optionsWrap"></div>
+      <div class="explanation" id="explanation"></div>
+    </div>
+
+    <!-- Nav -->
+    <div class="q-nav">
+      <div class="score-live">Mission Score: <span id="scoreLive">0 / 0</span></div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+        Next <i class="fa-solid fa-angle-right"></i>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ═══ RESULTS SCREEN ═══ -->
+  <div class="results-screen" id="resultsScreen">
+    <div class="results-title">Mission <span id="resultWord">Complete</span></div>
+    <p class="results-subtitle" id="resultSub">Your JavaScript knowledge report</p>
+
+    <div class="score-ring-wrap">
+      <svg class="score-ring-svg" width="180" height="180" viewBox="0 0 180 180">
+        <circle class="ring-track" cx="90" cy="90" r="76"/>
+        <circle class="ring-fill" id="ringFill" cx="90" cy="90" r="76"
+          stroke-dasharray="477.52" stroke-dashoffset="477.52"/>
+      </svg>
+      <div class="score-ring-text">
+        <span class="score-big" id="scoreBig">0</span>
+        <span class="score-denom" id="scoreDenom">/ 15</span>
+      </div>
+    </div>
+
+    <div class="results-msg" id="resultsMsg"></div>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <span class="val" id="rCorrect" style="color:var(--green)">0</span>
+        <span class="lbl">Correct</span>
+      </div>
+      <div class="stat-box">
+        <span class="val" id="rWrong" style="color:var(--red)">0</span>
+        <span class="lbl">Wrong</span>
+      </div>
+      <div class="stat-box">
+        <span class="val" id="rPct" style="color:var(--cyan)">0%</span>
+        <span class="lbl">Accuracy</span>
+      </div>
+    </div>
+
+    <div class="q-dots" id="qDots"></div>
+
+    <div class="results-btns">
+      <button class="btn-restart" onclick="restartQuiz()">
+        <i class="fa-solid fa-rotate-right" style="margin-right:8px"></i> Retry Mission
+      </button>
+      <a href="home.html" class="btn-home">
+        <i class="fa-solid fa-house" style="margin-right:8px"></i> Back to Portfolio
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const CAT_STYLES = {
+  'Hoisting':  { pill: 'tag-hoist',   color: '#c084fc' },
+  'TDZ':       { pill: 'tag-tdz',     color: '#fb923c' },
+  'Scope':     { pill: 'tag-scope',   color: '#00d1ff' },
+  'Closure':   { pill: 'tag-closure', color: '#4ade80' },
+  'Async':     { pill: 'tag-async',   color: '#f472b6' },
+};
+
+const LABELS = ['A', 'B', 'C', 'D'];
+
+const questions = [
+  {
+    cat: 'Hoisting',
+    title: 'What does this print?',
+    code: `console.log(a)\nvar a = 10`,
+    options: ['10', 'undefined', 'ReferenceError', 'SyntaxError'],
+    answer: 1,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 What is Hoisting?</div>
+        <p>Hoisting is JavaScript's behavior of <strong>moving declarations to the top</strong> of their scope before the code runs. Think of it like JS reads your whole file first, takes note of all <code>var</code> variables, and sets them to <code>undefined</code> — then runs the code line by line.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">undefined</span></div>
+        <p>When JS sees <code>var a = 10</code>, it splits it into two steps:</p>
+        <div class="exp-code">var a = undefined  // JS does this silently at the top\nconsole.log(a)    // → undefined (a exists but has no value yet)\na = 10            // now a gets the value 10</div>
+        <p>So <code>a</code> exists when you log it — it just doesn't have its value yet. That's why you get <code>undefined</code>, not an error.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">A — 10</span> Wrong. <code>10</code> is the value assigned on line 2. But <code>console.log</code> runs on line 1, before the assignment. JS hoisted the declaration, not the value.</div>
+        <div class="wrong-item"><span class="wrong-badge">C — ReferenceError</span> Wrong. A ReferenceError means "I have no idea what this variable is." But with <code>var</code>, JS already knows about <code>a</code> (it hoisted it). So no error — just <code>undefined</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">D — SyntaxError</span> Wrong. A SyntaxError means your code is written incorrectly (like missing a bracket). This code is perfectly valid — it just has an unexpected output.</div>
+      </div>`
+  },
+  {
+    cat: 'TDZ',
+    title: 'What happens here?',
+    code: `console.log(a)\nlet a = 10`,
+    options: ['undefined', '10', "ReferenceError: Cannot access 'a' before initialization", 'SyntaxError'],
+    answer: 2,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 What is the Temporal Dead Zone (TDZ)?</div>
+        <p>The TDZ is the "danger zone" that exists for <code>let</code> and <code>const</code> variables. Even though they are hoisted like <code>var</code>, they are <strong>NOT given a value</strong> — not even <code>undefined</code>. From the top of the scope until the line where you declare them, they're in the TDZ. Touch them there → crash.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">ReferenceError</span></div>
+        <p><code>let a</code> is hoisted, but JS doesn't initialize it. When you try to use <code>a</code> on line 1, it exists in memory but has no value and no permission to be read. JS throws: <em>"I know about <code>a</code> but you're not allowed to touch it yet!"</em></p>
+        <p>This is actually a good thing — it prevents you from accidentally using a variable before you meant to set it up.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">A — undefined</span> Wrong. That's what <code>var</code> would give you. <code>let</code> is stricter — it refuses to give you anything while it's in the TDZ, not even <code>undefined</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">B — 10</span> Wrong. The value <code>10</code> is set on line 2. Line 1 runs first, and at that point <code>a</code> is still in the TDZ — no value exists yet.</div>
+        <div class="wrong-item"><span class="wrong-badge">D — SyntaxError</span> Wrong. The code is written correctly, so no syntax problem. The error happens at runtime when the code actually tries to read <code>a</code>, not when JS is just reading the file.</div>
+      </div>`
+  },
+  {
+    cat: 'Scope',
+    title: 'What is the output? (two lines)',
+    code: `var x = 1\n\nfunction test() {\n  if (true) {\n    var x = 2\n  }\n  console.log(x)\n}\n\ntest()\nconsole.log(x)`,
+    options: ['2  then  1', '1  then  1', '2  then  2', '1  then  2'],
+    answer: 0,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 What is Function Scope vs Block Scope?</div>
+        <p><strong>Function scope</strong> means a variable lives inside the whole function, no matter where inside the function you wrote it. <code>var</code> is function-scoped.<br><br>
+        <strong>Block scope</strong> means a variable only lives inside the specific <code>{}</code> where it was written. <code>let</code> and <code>const</code> are block-scoped.<br><br>
+        The key gotcha: an <code>if</code> block is NOT a new function — so <code>var</code> inside it leaks out to the whole function.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">2 then 1</span></div>
+        <p>There are actually TWO separate <code>x</code> variables here — one global, one inside <code>test()</code>. Inside <code>test()</code>, <code>var x = 2</code> is hoisted to the top of the function (not just the <code>if</code> block). So when you log inside <code>test()</code>, the function's own <code>x</code> is <code>2</code>. The global <code>x = 1</code> was never touched, so the second log gives <code>1</code>.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">B — 1 then 1</span> Wrong. Inside <code>test()</code>, <code>var x = 2</code> creates a local <code>x</code> that shadows the global one. The inner log prints the local <code>x</code>, which is <code>2</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">C — 2 then 2</span> Wrong. The inner <code>x = 2</code> only lives inside <code>test()</code>. It doesn't reach the global <code>x</code>. The outer <code>console.log(x)</code> reads the global one, which is still <code>1</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">D — 1 then 2</span> Wrong. This would be true if the assignment inside the function changed the global — but it doesn't. <code>var x = 2</code> creates a new local variable, it doesn't overwrite the global one.</div>
+      </div>`
+  },
+  {
+    cat: 'TDZ',
+    title: 'What happens here? (Shadowing + TDZ trap)',
+    code: `let x = 10\n\nfunction test() {\n  console.log(x)\n  let x = 20\n}\n\ntest()`,
+    options: ['10', '20', 'undefined', 'ReferenceError'],
+    answer: 3,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 What is Shadowing?</div>
+        <p>Shadowing is when a variable inside a function has the <strong>same name</strong> as a variable outside it. The inner one "shadows" (hides) the outer one. Once you declare a <code>let</code> inside a function, that name is now taken by the inner variable for the whole function — even for lines that appear before the declaration.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">ReferenceError</span></div>
+        <p>This is the sneakiest trap! You might think JS will look up and find <code>x = 10</code> from the outer scope — but it won't. Why? Because the inner <code>let x = 20</code> already claimed the name <code>x</code> for this function. It's hoisted (but uninitialized) to the top of the function. So at the time of <code>console.log(x)</code>, the inner <code>x</code> exists in the TDZ. JS sees the inner <code>x</code>, not the outer one — and it's in the TDZ → ReferenceError.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">A — 10</span> Wrong. Your first instinct says "go look at the outer <code>x</code>." But the inner <code>let x</code> already shadowed it. The outer <code>x</code> is invisible inside this function now.</div>
+        <div class="wrong-item"><span class="wrong-badge">B — 20</span> Wrong. <code>20</code> is what <code>x</code> will be after line 4 runs — but the log is on line 3, before the assignment. And since it's in the TDZ, you crash before ever getting to line 4.</div>
+        <div class="wrong-item"><span class="wrong-badge">C — undefined</span> Wrong. <code>undefined</code> is what <code>var</code> would give during hoisting. <code>let</code> refuses to give even <code>undefined</code> while in the TDZ — it just throws an error.</div>
+      </div>`
+  },
+  {
+    cat: 'Closure',
+    title: 'Classic closure trap — what prints?',
+    code: `for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0)\n}`,
+    options: ['0  1  2', '3  3  3', '0  0  0', 'undefined undefined undefined'],
+    answer: 1,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 What is a Closure?</div>
+        <p>A closure is when a function "remembers" the variables from where it was created, even after that outer code has finished. The arrow function inside <code>setTimeout</code> is a closure — it holds a reference to <code>i</code>. But here's the key: it holds a <strong>reference</strong>, not a copy. It doesn't save the value of <code>i</code> at the moment it was created — it reads <code>i</code> whenever it actually runs.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">3  3  3</span></div>
+        <p>Because <code>var i</code> is global/function-scoped, there is only ONE <code>i</code> in memory. All three <code>setTimeout</code> callbacks point to that same <code>i</code>. The loop runs super fast (in microseconds). By the time the callbacks actually fire, the loop is already done and <code>i</code> is now <code>3</code>. All three read that same final value of <code>3</code>.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">A — 0 1 2</span> Wrong. This is what you'd want and expect — but <code>var</code> only has one <code>i</code>. The callbacks don't capture a snapshot of <code>i</code>, they share the live variable. By the time they run, it's already <code>3</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">C — 0 0 0</span> Wrong. There's no reason for <code>i</code> to be frozen at <code>0</code>. It's a shared variable that keeps changing — and by callback time it's <code>3</code>, not <code>0</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">D — undefined</span> Wrong. <code>i</code> is declared with <code>var</code>, so it always has a number value. It starts at <code>0</code> and ends at <code>3</code>. It never becomes <code>undefined</code>.</div>
+      </div>`
+  },
+  {
+    cat: 'Closure',
+    title: 'Now with let — what prints?',
+    code: `for (let i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0)\n}`,
+    options: ['3  3  3', '0  0  0', '0  1  2', 'undefined undefined undefined'],
+    answer: 2,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 How let fixes the closure trap</div>
+        <p>When you use <code>let</code> in a <code>for</code> loop, JavaScript creates a <strong>brand new copy of <code>i</code> for each iteration</strong>. So iteration 1 has its own <code>i = 0</code>, iteration 2 has its own <code>i = 1</code>, and iteration 3 has its own <code>i = 2</code>. Each callback closes over its own separate <code>i</code> — not a shared one.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">0  1  2</span></div>
+        <p>Each arrow function captures its own private copy of <code>i</code>. When the three callbacks finally run, they each read their own <code>i</code>: the first one prints <code>0</code>, the second <code>1</code>, the third <code>2</code>. This is exactly the behavior you'd naturally expect!</p>
+        <p>💡 This is one of the biggest reasons modern JS prefers <code>let</code> over <code>var</code> in loops.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">A — 3 3 3</span> Wrong. That's the <code>var</code> behavior (previous question). With <code>let</code>, each iteration gets its own <code>i</code>, so they don't all end up reading the same final <code>3</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">B — 0 0 0</span> Wrong. Each callback has a different <code>i</code> — not all the same <code>0</code>. They captured <code>0</code>, <code>1</code>, and <code>2</code> independently.</div>
+        <div class="wrong-item"><span class="wrong-badge">D — undefined</span> Wrong. <code>let i</code> is initialized with a number at each iteration. It's never <code>undefined</code>.</div>
+      </div>`
+  },
+  {
+    cat: 'Scope',
+    title: 'Nested scope — what prints?',
+    code: `var a = 1\n\nfunction outer() {\n  var a = 2\n  function inner() {\n    console.log(a)\n  }\n  inner()\n}\n\nouter()`,
+    options: ['1', '2', 'undefined', 'ReferenceError'],
+    answer: 1,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 What is the Scope Chain?</div>
+        <p>When JS looks up a variable, it searches in layers — like peeling an onion. It first checks the current function's scope. If not found, it goes one level up. Then another level up. All the way to global scope. This is called the <strong>scope chain</strong>.</p>
+        <p>Also: JS uses <strong>lexical scoping</strong> — meaning it checks where the function was <em>written</em>, not where it was called. <code>inner()</code> was written inside <code>outer()</code>, so it can see <code>outer()</code>'s variables.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">2</span></div>
+        <p><code>inner()</code> looks for <code>a</code>: not in its own scope → goes up to <code>outer()</code>'s scope → finds <code>a = 2</code> → done! It never needs to go up to global <code>a = 1</code> because it already found one closer.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">A — 1</span> Wrong. <code>inner()</code> finds <code>a = 2</code> in <code>outer()</code>'s scope first. It stops there and never reaches the global <code>a = 1</code>. The closest one wins.</div>
+        <div class="wrong-item"><span class="wrong-badge">C — undefined</span> Wrong. <code>a</code> is definitely defined in the outer scope and has a value. There's no way to get <code>undefined</code> here.</div>
+        <div class="wrong-item"><span class="wrong-badge">D — ReferenceError</span> Wrong. <code>a</code> exists! JS can find it by walking up the scope chain. A ReferenceError only happens when JS searches all the way up and finds nothing.</div>
+      </div>`
+  },
+  {
+    cat: 'Scope',
+    title: 'What happens with this re-declaration?',
+    code: `var a = 10\nlet a = 20`,
+    options: ['a becomes 20', 'a stays 10', 'SyntaxError', 'ReferenceError'],
+    answer: 2,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 var vs let — re-declaration rules</div>
+        <p><code>var</code> is very relaxed — you can declare the same variable as many times as you want. JS won't complain at all.<br><br>
+        <code>let</code> is strict — once a name is taken in a scope, you can't declare it again. And this rule also applies when mixing: if <code>var a</code> already exists, you can't then do <code>let a</code> in the same scope.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">SyntaxError</span></div>
+        <p>This error is caught <em>before</em> any code runs — at parse time, when JS is reading the file. It sees both <code>var a</code> and <code>let a</code> in the same scope and says "nope, can't have two declarations with the same name when one is <code>let</code>." The whole script crashes before line 1 even executes.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">A — a becomes 20</span> Wrong. The code never runs at all — it crashes at parse time. There's no "a becomes 20" because the assignment on line 2 is never reached.</div>
+        <div class="wrong-item"><span class="wrong-badge">B — a stays 10</span> Wrong. Same reason — code never runs. Even line 1 doesn't execute because the whole file is rejected before it starts.</div>
+        <div class="wrong-item"><span class="wrong-badge">D — ReferenceError</span> Wrong. A ReferenceError happens at runtime when you try to use a variable that doesn't exist. This error is a SyntaxError — caught earlier, at parse time, before runtime even begins.</div>
+      </div>`
+  },
+  {
+    cat: 'Hoisting',
+    title: 'Function hoisting vs variable hoisting — what prints?',
+    code: `console.log(foo)\n\nvar foo = 10\n\nfunction foo() {\n  return 20\n}`,
+    options: ['undefined', '10', '20', '[Function: foo]'],
+    answer: 3,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 Two types of hoisting — and which wins</div>
+        <p>There are two things JS hoists differently:<br><br>
+        <strong>var hoisting:</strong> Only the name is hoisted, initialized as <code>undefined</code>.<br>
+        <strong>function declaration hoisting:</strong> The ENTIRE thing is hoisted — name AND body. The function is fully available from line 1.<br><br>
+        When both have the same name, <strong>function hoisting wins</strong>. JS processes function declarations first, and they take priority over <code>var</code>.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">[Function: foo]</span></div>
+        <p>Before any code runs, JS hoists the function <code>foo</code> completely. The <code>var foo</code> declaration also gets hoisted, but the function wins the naming fight. So at the time <code>console.log(foo)</code> runs, <code>foo</code> is already the full function — not <code>undefined</code>, not <code>10</code>, not <code>20</code>.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">A — undefined</span> Wrong. <code>undefined</code> would be the answer if only <code>var foo</code> existed. But the function declaration is also there — and it wins, so <code>foo</code> starts as the function.</div>
+        <div class="wrong-item"><span class="wrong-badge">B — 10</span> Wrong. <code>10</code> is assigned on line 3 — after the log. Even if the function didn't exist, you'd get <code>undefined</code>, not <code>10</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">C — 20</span> Wrong. <code>20</code> is the return value of the function — but you'd need to actually call <code>foo()</code> to get that. Just logging <code>foo</code> shows the function itself, not what it returns.</div>
+      </div>`
+  },
+  {
+    cat: 'Scope',
+    title: 'Scope + mutation — what prints?',
+    code: `let a = 10\n\nfunction test() {\n  a = 20\n}\n\ntest()\nconsole.log(a)`,
+    options: ['10', '20', 'undefined', 'ReferenceError'],
+    answer: 1,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 Declaration vs Assignment — they're different!</div>
+        <p><strong>Declaration</strong> = creating a new variable → <code>let a = 10</code><br>
+        <strong>Assignment</strong> = changing an existing variable's value → <code>a = 20</code><br><br>
+        Inside a function, if you just write <code>a = 20</code> (no <code>let</code>, <code>var</code>, or <code>const</code>), you are NOT creating a new variable. You're just updating the existing one that JS found by walking up the scope chain.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">20</span></div>
+        <p>Inside <code>test()</code>, <code>a = 20</code> has no keyword in front of it. So JS looks up the scope chain, finds the outer <code>let a = 10</code>, and changes its value to <code>20</code>. When the function finishes and you log <code>a</code> outside, the outer <code>a</code> has been changed. It's now <code>20</code>.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">A — 10</span> Wrong. This would be right if <code>test()</code> created a new local <code>a</code> — but it doesn't. No declaration keyword means it modifies the outer one. The outer <code>a</code> is now <code>20</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">C — undefined</span> Wrong. <code>a</code> was declared with <code>let</code> and given a value. It never becomes <code>undefined</code> — it just changes from <code>10</code> to <code>20</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">D — ReferenceError</span> Wrong. <code>a</code> exists in the outer scope and <code>test()</code> can reach it. There's no missing variable — JS found it fine.</div>
+      </div>`
+  },
+  {
+    cat: 'Scope',
+    title: 'Block scope leakage — what prints?',
+    code: `{\n  var a = 10\n}\n\nconsole.log(a)`,
+    options: ['10', 'undefined', 'ReferenceError', 'SyntaxError'],
+    answer: 0,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 var doesn't respect blocks</div>
+        <p>A "block" is any pair of curly braces <code>{}</code> — like in <code>if</code>, <code>for</code>, or just standalone <code>{}</code> like here. <code>let</code> and <code>const</code> are trapped inside their block. But <code>var</code> completely ignores blocks — it only respects function boundaries. So <code>var</code> inside a standalone block leaks right out to the surrounding scope.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">10</span></div>
+        <p>The <code>{}</code> block is just decoration for <code>var</code>. The variable <code>a</code> escapes to the global scope and equals <code>10</code>. It's totally accessible outside the block.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">B — undefined</span> Wrong. <code>a</code> was actually assigned <code>10</code>, not just declared. If only the declaration had run, you'd get <code>undefined</code> — but the assignment ran too.</div>
+        <div class="wrong-item"><span class="wrong-badge">C — ReferenceError</span> Wrong. This would be the answer if <code>a</code> were declared with <code>let</code>. But <code>var</code> leaks out of the block, so <code>a</code> is accessible globally. No error.</div>
+        <div class="wrong-item"><span class="wrong-badge">D — SyntaxError</span> Wrong. The code is perfectly valid JS. A standalone block is totally legal — it just doesn't do what you might expect.</div>
+      </div>`
+  },
+  {
+    cat: 'Scope',
+    title: 'Now with let — what happens?',
+    code: `{\n  let a = 10\n}\n\nconsole.log(a)`,
+    options: ['10', 'undefined', 'ReferenceError', 'SyntaxError'],
+    answer: 2,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 let stays inside its block</div>
+        <p>Unlike <code>var</code>, <code>let</code> takes blocks seriously. A pair of curly braces <code>{}</code> is a real boundary for <code>let</code>. The variable lives and dies inside that block. Once the closing <code>}</code> is passed, the variable is gone — completely invisible to the outside world.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">ReferenceError</span></div>
+        <p><code>let a</code> was created inside <code>{}</code> and stays there. When <code>console.log(a)</code> runs outside the block, JS searches for <code>a</code> and finds nothing. It's like the variable never existed from outside's perspective → ReferenceError.</p>
+        <p>💡 This is actually the correct, safe behavior — it prevents "accidental global" bugs that <code>var</code> causes.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">A — 10</span> Wrong. That's what <code>var</code> would give (previous question). <code>let</code> is block-scoped and won't leak outside the <code>{}</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">B — undefined</span> Wrong. <code>undefined</code> means "the variable exists but has no value." Here, the variable doesn't exist at all outside the block — that's a full ReferenceError, not just <code>undefined</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">D — SyntaxError</span> Wrong. The code is written correctly. A SyntaxError means invalid code structure. This code is valid — the error only happens at runtime when you try to read <code>a</code> outside its scope.</div>
+      </div>`
+  },
+  {
+    cat: 'Scope',
+    title: 'Parameter shadowing — what prints?',
+    code: `let a = 5\n\nfunction test(a) {\n  console.log(a)\n}\n\ntest(10)`,
+    options: ['5', '10', 'undefined', 'ReferenceError'],
+    answer: 1,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 Function parameters are like local variables</div>
+        <p>When you define a function with a parameter, that parameter name becomes a local variable inside the function — just like if you had written <code>let a = ...</code> at the top. It automatically shadows any outer variable with the same name. The parameter gets its value from whatever you pass in when you call the function.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">10</span></div>
+        <p>When you call <code>test(10)</code>, the parameter <code>a</code> gets the value <code>10</code>. Inside the function, <code>a</code> refers to this parameter — not the outer <code>let a = 5</code>. The outer <code>a</code> is completely shadowed and hidden. So <code>console.log(a)</code> prints the parameter's value: <code>10</code>.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">A — 5</span> Wrong. The outer <code>a = 5</code> is shadowed by the parameter <code>a</code>. Inside the function, the outer one is invisible — the parameter takes over the name <code>a</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">C — undefined</span> Wrong. The parameter <code>a</code> receives <code>10</code> from the function call. It's not missing a value — it was passed in. You'd get <code>undefined</code> if you called <code>test()</code> with no argument.</div>
+        <div class="wrong-item"><span class="wrong-badge">D — ReferenceError</span> Wrong. <code>a</code> absolutely exists inside the function — it's the parameter. JS finds it immediately. No missing variable here.</div>
+      </div>`
+  },
+  {
+    cat: 'Async',
+    title: 'Closure + async trap — what prints?',
+    code: `function test() {\n  for (var i = 0; i < 3; i++) {\n    setTimeout(() => console.log(i), 100)\n  }\n}\n\ntest()`,
+    options: ['0  1  2', '3  3  3', '0  0  0', '1  2  3'],
+    answer: 1,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 How setTimeout actually works</div>
+        <p><code>setTimeout</code> doesn't pause your code. It says "hey, run this function later" and then your code keeps running immediately. So the loop doesn't wait for the timeout — it completes all 3 iterations instantly, then the 3 callbacks run after 100ms. By then, the loop is ancient history.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">3  3  3</span></div>
+        <p>Same trap as Q5, now with a delay. <code>var i</code> is scoped to the <code>test()</code> function — one shared variable. Here's the timeline:</p>
+        <div class="exp-code">// What happens step by step:\n// t=0ms: loop runs, i goes 0→1→2→3, loop ends\n// t=100ms: all 3 callbacks fire, read i → it's 3\n// prints: 3, 3, 3</div>
+        <p>The 100ms delay actually makes it more obvious — the loop DEFINITELY finished before the callbacks run. But even 0ms has the same result because JS is single-threaded and runs the loop to completion first.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">A — 0 1 2</span> Wrong. You'd need <code>let</code> for this. With <code>var</code>, there's only one <code>i</code> and it's <code>3</code> by the time anything runs.</div>
+        <div class="wrong-item"><span class="wrong-badge">C — 0 0 0</span> Wrong. <code>i</code> doesn't freeze at <code>0</code>. It keeps incrementing until the loop exits at <code>3</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">D — 1 2 3</span> Wrong. Close guess — but the loop runs from 0 to 2 (3 iterations), then exits with <code>i === 3</code>. The values 1, 2, 3 are not sequential snapshots — it's the same final value <code>3</code> read three times.</div>
+      </div>`
+  },
+  {
+    cat: 'Closure',
+    title: 'IIFE fix — what prints?',
+    code: `for (var i = 0; i < 3; i++) {\n  (function(i) {\n    setTimeout(() => console.log(i), 0)\n  })(i)\n}`,
+    options: ['3  3  3', '0  1  2', '0  0  0', 'undefined undefined undefined'],
+    answer: 1,
+    explanation: `
+      <div class="exp-section">
+        <div class="exp-concept-title">🧠 What is an IIFE?</div>
+        <p>An IIFE (say it like "iffy") stands for <strong>Immediately Invoked Function Expression</strong>. It's a function that you define and call in the same line. The pattern looks like: <code>(function() { ... })()</code>. The first <code>()</code> wraps the function, and the second <code>()</code> calls it immediately.</p>
+        <p>The key superpower: each function call creates a brand-new scope with its own variables. So every iteration of the loop gets its own private copy of <code>i</code>.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">✅ Why the answer is <span class="ans-correct">0  1  2</span></div>
+        <p>Each loop iteration immediately calls the IIFE and passes the current value of <code>i</code> as an argument. Inside the IIFE, the parameter (also named <code>i</code>) gets a fresh copy of that value — <code>0</code>, then <code>1</code>, then <code>2</code>. Each IIFE creates a separate scope. The callbacks close over their IIFE's private <code>i</code>, not the shared loop variable.</p>
+        <div class="exp-code">// Iteration 1: IIFE called with i=0 → callback captures 0\n// Iteration 2: IIFE called with i=1 → callback captures 1\n// Iteration 3: IIFE called with i=2 → callback captures 2\n// Result: 0, 1, 2 ✓</div>
+        <p>💡 This was the go-to fix before <code>let</code> existed (pre-2015). Today, just use <code>let</code> in the loop and skip the IIFE.</p>
+      </div>
+      <div class="exp-section">
+        <div class="exp-concept-title">❌ Why the other answers are wrong</div>
+        <div class="wrong-item"><span class="wrong-badge">A — 3 3 3</span> Wrong. That's without the IIFE fix. The whole point of the IIFE is to break the shared-variable problem. Each callback now has its own scope, so they print different values.</div>
+        <div class="wrong-item"><span class="wrong-badge">C — 0 0 0</span> Wrong. Each IIFE is called with a different value of <code>i</code>: <code>0</code>, <code>1</code>, <code>2</code>. They don't all get <code>0</code>.</div>
+        <div class="wrong-item"><span class="wrong-badge">D — undefined</span> Wrong. The parameter <code>i</code> inside the IIFE always receives a number. It's never <code>undefined</code>.</div>
+      </div>`
+  }
+];
+
+let current = 0, score = 0, answered = false, results = [];
+
+function startQuiz() {
+  document.getElementById('introScreen').style.display = 'none';
+  document.getElementById('quizScreen').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = questions[current];
+  const pct = (current / questions.length) * 100;
+
+  // Progress
+  document.getElementById('progressFill').style.width = pct + '%';
+  const n = String(current + 1).padStart(2, '0');
+  const t = String(questions.length).padStart(2, '0');
+  document.getElementById('qCounter').textContent = `${n} / ${t}`;
+  document.getElementById('qNumLabel').textContent = `Mission ${n} of ${t}`;
+  document.getElementById('scoreLive').textContent = `${score} / ${current}`;
+  document.getElementById('scoreLabel').textContent = `Score: ${score}`;
+
+  // Category pill
+  const pill = document.getElementById('catPill');
+  const cs = CAT_STYLES[q.cat] || CAT_STYLES['Scope'];
+  pill.className = 'cat-pill ' + cs.pill;
+  pill.textContent = q.cat;
+
+  // Q card re-animate
+  const card = document.getElementById('qCard');
+  card.style.animation = 'none';
+  card.offsetHeight; // reflow
+  card.style.animation = 'fadeUp .4s ease both';
+
+  // Title
+  document.getElementById('qTitle').textContent = q.title;
+
+  // Code block — syntax-highlighted
+  const cb = document.getElementById('codeBlock');
+  cb.innerHTML = `<span class="code-lang">JavaScript</span>` + highlight(q.code);
+
+  // Options
+  const ow = document.getElementById('optionsWrap');
+  ow.innerHTML = q.options.map((opt, i) => `
+    <button class="opt-btn" onclick="pick(${i})" id="opt${i}">
+      <span class="opt-index">${LABELS[i]}</span>
+      <span>${escHtml(opt)}</span>
+    </button>
+  `).join('');
+
+  // Explanation
+  const exp = document.getElementById('explanation');
+  exp.style.display = 'none';
+  exp.innerHTML = q.explanation;
+
+  // Next btn
+  const nb = document.getElementById('nextBtn');
+  nb.classList.remove('visible');
+  nb.textContent = current === questions.length - 1 ? 'View Results ' : 'Next ';
+  nb.innerHTML += `<i class="fa-solid fa-angle-right"></i>`;
+}
+
+function highlight(code) {
+  return escHtml(code)
+    .replace(/\b(var|let|const|function|return|for|if|true|false|new)\b/g, '<span class="kw">$1</span>')
+    .replace(/\b(console|setTimeout)\b/g, '<span class="fn">$1</span>')
+    .replace(/\b(\d+)\b/g, '<span class="num">$1</span>');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function pick(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[current];
+  document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+
+  if (idx === q.answer) {
+    document.getElementById('opt'+idx).classList.add('correct');
+    score++;
+    results.push(true);
+  } else {
+    document.getElementById('opt'+idx).classList.add('wrong');
+    document.getElementById('opt'+q.answer).classList.add('reveal');
+    results.push(false);
+  }
+
+  document.getElementById('explanation').style.display = 'block';
+  document.getElementById('scoreLive').textContent = `${score} / ${current + 1}`;
+  document.getElementById('scoreLabel').textContent = `Score: ${score}`;
+
+  const nb = document.getElementById('nextBtn');
+  nb.classList.add('visible');
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResults() {
+  document.getElementById('quizScreen').style.display = 'none';
+  const rs = document.getElementById('resultsScreen');
+  rs.style.display = 'block';
+
+  const pct = Math.round((score / questions.length) * 100);
+  const correct = results.filter(Boolean).length;
+  const wrong = results.length - correct;
+
+  document.getElementById('scoreBig').textContent = score;
+  document.getElementById('scoreDenom').textContent = '/ ' + questions.length;
+  document.getElementById('rCorrect').textContent = correct;
+  document.getElementById('rWrong').textContent = wrong;
+  document.getElementById('rPct').textContent = pct + '%';
+
+  // Ring
+  const circumference = 477.52;
+  const ring = document.getElementById('ringFill');
+  let ringColor, msgText, msgStyle, wordText;
+  if (pct === 100) {
+    ringColor = '#00ffaa'; msgText = '🏆 Perfect Score — Interview Ready!';
+    msgStyle = 'background:rgba(0,255,170,.1);border:1px solid rgba(0,255,170,.3);color:#00ffaa;';
+    wordText = 'Complete';
+  } else if (pct >= 80) {
+    ringColor = '#00d1ff'; msgText = '🛸 Excellent — Strong Understanding!';
+    msgStyle = 'background:rgba(0,209,255,.1);border:1px solid rgba(0,209,255,.3);color:#00d1ff;';
+    wordText = 'Success';
+  } else if (pct >= 60) {
+    ringColor = '#7b61ff'; msgText = '🌌 Good Work — Review Missed Missions';
+    msgStyle = 'background:rgba(123,97,255,.1);border:1px solid rgba(123,97,255,.3);color:#7b61ff;';
+    wordText = 'Partial';
+  } else {
+    ringColor = '#ff4d6d'; msgText = '☄️ Keep Practicing — You\'re Getting There!';
+    msgStyle = 'background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.3);color:#ff4d6d;';
+    wordText = 'Aborted';
+  }
+
+  ring.setAttribute('stroke', ringColor);
+  document.getElementById('scoreBig').style.color = ringColor;
+  document.getElementById('scoreBig').style.textShadow = `0 0 20px ${ringColor}`;
+  document.getElementById('resultsMsg').setAttribute('style', msgStyle);
+  document.getElementById('resultsMsg').textContent = msgText;
+  document.getElementById('resultWord').textContent = wordText;
+
+  setTimeout(() => {
+    const offset = circumference - (pct / 100) * circumference;
+    ring.style.strokeDashoffset = offset;
+  }, 100);
+
+  // Dots
+  const dotsWrap = document.getElementById('qDots');
+  dotsWrap.innerHTML = results.map((r, i) =>
+    `<div class="q-dot ${r ? 'c' : 'w'}" title="Q${i+1}: ${r ? 'Correct' : 'Wrong'}">${i+1}</div>`
+  ).join('');
+}
+
+function restartQuiz() {
+  current = 0; score = 0; answered = false; results = [];
+  document.getElementById('resultsScreen').style.display = 'none';
+  document.getElementById('ringFill').style.strokeDashoffset = '477.52';
+  document.getElementById('quizScreen').style.display = 'block';
+  renderQuestion();
+}
+</script>
+</body>
+</html>
